@@ -72,9 +72,11 @@ def main():
     clientSocket = socket(AF_INET, SOCK_STREAM) # TCP socket
     # COMPLETE
 
-
+    PORT = 21 #constant for the port according to the instructions
     HOST = sys.argv[1] #COMPLETE... second parameter in the command line
     # COMPLETE
+
+    clientSocket.connect((HOST, PORT)) #open TCP connection
 
     dataIn = receiveData(clientSocket)
     print(dataIn)
