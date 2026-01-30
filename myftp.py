@@ -51,7 +51,7 @@ def modePASV(clientSocket):
 
     status = 0
 
-    dataSocket = None #in case the datasocket is not 227 
+    dataSocket = None #in case PASV fails 
 
     if data.startswith("227"):
         status = 227
