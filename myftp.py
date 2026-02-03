@@ -105,13 +105,53 @@ def main():
             if dataIn.startswith("230"): #230 = user was able to log in
                 status = 230
 
-       
+
     if status == 230:
         # It is your choice whether to use ACTIVE or PASV mode. In any event:
         # COMPLETE
         pasvStatus, dataSocket = modePASV(clientSocket)
         if pasvStatus == 227:
-            # COMPLETE
+            while(status != 221): # while the server does not return QUIT status
+
+                # This entire block of code will be converted into a funtion later.
+                userInput = input("")
+                command = None
+
+                # I don't use match (python switch statement) since it was implemented in python3.1, incase an old version of python is used.
+                if userInput == "help":
+                    printHelp()
+                    continue
+                elif len(userInput) == 2 and userInput == "ls":
+                    command = "LIST"
+                elif userInput[:2] == "cd " and len(userInput) > 3:
+                    command = "CWD " + userInput[2:]
+                elif userInput[:3] == "quit" and len(userInput) == 4:
+                    command = "QUIT"
+                else :
+                    print("Invalid command! Enter 'help' to see available commands.")
+                    continue
+
+                data_in = sendCommand(clientSocket,command)
+                status = data_in[:3]
+                #Relevant Status codes:
+                #150: File Status OK    125: Data connection already open   226: Closing data connection, requested file action successful
+                #426: Connection closed; transfer ended abnormally   550: Requested action not taken; file not found or no access
+                #250: Requested File Action Successful  221: Received QUIT command
+                if status == 150 or status == 125:
+                    print(data_in[3:])
+                    stream_data_in = receiveData(dataSocket)
+                    print(stream_data_in)
+
+                #Handles cd
+                elif status == 250:
+                    print(data_in[3:])
+                elif status == 500:
+                    print(data_in[3:])
+                elif status == 221:
+                    print(data_in[3:])
+
+        elif pasvStatus == 0 :
+            print("Failed to enable PASV mode!\n")
 
     
     print("Disconnecting...")
@@ -121,6 +161,33 @@ def main():
     dataSocket.close()
     
     sys.exit()#Terminate the program after sending the corresponding data
+
+
+def printHelp():
+    cdHelp =\
+        "cd\n"\
+        "Changes the working directory\n"\
+        "Usage: cd <directory>\n"
+
+    lsHelp = \
+        "ls\n"\
+        "Displays the list of files and folders\n"\
+        "Usage: ls <directory>\n"
+
+    quitHelp = \
+        "quit\n"\
+        "Quits the program\n"\
+        "Usage: quit\n"
+
+    print("Available Commands:\n" +
+          cdHelp +
+          "\n" +
+          lsHelp +
+          "\n" +
+          quitHelp +
+          "\n"
+          )
+
 
 main()
 
