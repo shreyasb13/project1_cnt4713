@@ -73,7 +73,12 @@ def main():
     # COMPLETE
 
     PORT = 21 #constant for the port according to the instructions
-    HOST = sys.argv[1] #COMPLETE... second parameter in the command line
+    HOST = ""
+    if len(sys.argv) == 2:
+        HOST = sys.argv[1] #COMPLETE... second parameter in the command line
+    else:
+        print("Usage: python myftp.py <server-name>\n")
+        sys.exit()
     # COMPLETE
 
     clientSocket.connect((HOST, PORT)) #open TCP connection
