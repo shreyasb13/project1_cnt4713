@@ -112,7 +112,7 @@ def main():
         # COMPLETE
         pasvStatus, dataSocket = modePASV(clientSocket)
         if pasvStatus == 227:
-            while(status != 221): # while the server does not return QUIT status
+            while status != 221: # while the server does not return QUIT status
 
                 # This entire block of code will be converted into a funtion later.
                 userInput = input("")
@@ -135,7 +135,7 @@ def main():
                 data_in = sendCommand(clientSocket,command)
                 status = int(data_in[:3])
 
-                print("DEBUG Before data_in and status parsing\ndata_in: " + data_in + "\n" + "status: " + str(status))
+                #print("DEBUG Before data_in and status parsing\ndata_in: " + data_in + "\n" + "status: " + str(status))
                 #Relevant Status codes:
                 #150: File Status OK    125: Data connection already open   226: Closing data connection, requested file action successful
                 #426: Connection closed; transfer ended abnormally   550: Requested action not taken; file not found or no access
