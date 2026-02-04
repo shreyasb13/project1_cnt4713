@@ -183,6 +183,21 @@ def printHelp():
         "Displays the list of files and folders\n"\
         "Usage: ls <directory>\n"
 
+    getHelp = \
+        "get\n" \
+        "Downloads the specified file from the server to the device\n" \
+        "Usage: get <directory>\n"
+
+    putHelp = \
+        "put\n" \
+        "Uploads the specified file from the device to the server\n" \
+        "Usage: put <directory>\n"
+
+    deleteHelp = \
+        "delete\n" \
+        "Deletes the specified file from the server\n" \
+        "Usage: delete <directory>\n"
+
     quitHelp = \
         "quit\n"\
         "Quits the program\n"\
@@ -193,11 +208,18 @@ def printHelp():
           "\n" +
           lsHelp +
           "\n" +
+          getHelp +
+          "\n" +
+          putHelp +
+          "\n" +
+          deleteHelp +
+          "\n" +
           quitHelp
           )
 
 
 main()
+
 
 
 
