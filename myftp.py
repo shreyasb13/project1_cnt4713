@@ -124,6 +124,12 @@ def main():
                     command = "LIST" + "\r\n"
                 elif userInput[:3] == "cd " and len(userInput) > 3:
                     command = "CWD " + userInput[2:] + "\r\n"
+                elif userInput[:4] == "get " and len(userInput) > 4:
+                    command = "GET " + userInput[2:] + "\r\n"
+                elif userInput[:4] == "put " and len(userInput) > 4:
+                    command = "PUT " + userInput[2:] + "\r\n"
+                elif userInput[:7] == "delete " and len(userInput) > 7:
+                    command = "DELETE " + userInput[2:] + "\r\n"
                 elif userInput[:4] == "quit" and len(userInput) == 4:
                     command = "QUIT\r\n"
                 else :
@@ -192,5 +198,6 @@ def printHelp():
 
 
 main()
+
 
 
