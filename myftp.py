@@ -65,10 +65,6 @@ def modePASV(clientSocket):
     
 def main():
     # COMPLETE
-
-    username = input("Enter the username: ")
-    password = input("Enter the password: ")
-
     clientSocket = socket(AF_INET, SOCK_STREAM) # TCP socket
     # COMPLETE
 
@@ -91,11 +87,13 @@ def main():
     
     if dataIn.startswith("220"): #220 = service ready
         status = 220
+        username = input("Enter the username: ")
         print("Sending username")
         # COMPLETE
         dataIn = sendCommand(clientSocket, "USER "+username+"\r\n") #send the username and receive the response in the variable dataIn
         print(dataIn)
-
+        
+        password = input("Enter the password: ")
         print("Sending password")
         if dataIn.startswith("331"): #331 = need password
             status = 331
@@ -194,4 +192,5 @@ def printHelp():
 
 
 main()
+
 
