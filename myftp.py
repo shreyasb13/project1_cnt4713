@@ -78,6 +78,7 @@ def main():
         HOST = sys.argv[1] #COMPLETE... second parameter in the command line
     else:
         print("Usage: python myftp.py <server-name>\n")
+        clientSocket.close()
         sys.exit()
     # COMPLETE
 
@@ -122,33 +123,37 @@ def main():
                     printHelp()
                     continue
                 elif len(userInput) == 2 and userInput == "ls":
-                    command = "LIST"
-                elif userInput[:2] == "cd " and len(userInput) > 3:
-                    command = "CWD " + userInput[2:]
-                elif userInput[:3] == "quit" and len(userInput) == 4:
-                    command = "QUIT"
+                    command = "LIST" + "\r\n"
+                elif userInput[:3] == "cd " and len(userInput) > 3:
+                    command = "CWD " + userInput[2:] + "\r\n"
+                elif userInput[:4] == "quit" and len(userInput) == 4:
+                    command = "QUIT\r\n"
                 else :
                     print("Invalid command! Enter 'help' to see available commands.")
                     continue
 
                 data_in = sendCommand(clientSocket,command)
-                status = data_in[:3]
+                status = int(data_in[:3])
+
+                print("DEBUG Before data_in and status parsing\ndata_in: " + data_in + "\n" + "status: " + str(status))
                 #Relevant Status codes:
                 #150: File Status OK    125: Data connection already open   226: Closing data connection, requested file action successful
                 #426: Connection closed; transfer ended abnormally   550: Requested action not taken; file not found or no access
-                #250: Requested File Action Successful  221: Received QUIT command
-                if status == 150 or status == 125:
-                    print(data_in[3:])
+                #250: Requested File Action Successful  221: Received QUIT command 226: Directory send OK.
+
+                if status == 150 or status == 125: #File Status OK | Data connection already open
+                    print(data_in[4:])
                     stream_data_in = receiveData(dataSocket)
                     print(stream_data_in)
+                elif status == 250: #Requested File Action Successful
+                    print(data_in[4:])
+                elif status == 500: #Requested action not taken
+                    print(data_in[4:])
+                elif status == 221: #Received QUIT command
+                    print(data_in[4:])
+                elif status == 226: #Directory send OK.
+                    print(data_in[4:])
 
-                #Handles cd
-                elif status == 250:
-                    print(data_in[3:])
-                elif status == 500:
-                    print(data_in[3:])
-                elif status == 221:
-                    print(data_in[3:])
 
         elif pasvStatus == 0 :
             print("Failed to enable PASV mode!\n")
@@ -184,8 +189,7 @@ def printHelp():
           "\n" +
           lsHelp +
           "\n" +
-          quitHelp +
-          "\n"
+          quitHelp
           )
 
 
