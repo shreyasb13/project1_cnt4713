@@ -65,7 +65,9 @@ def modePASV(clientSocket):
     
 def main():
     # COMPLETE
-    clientSocket = socket(AF_INET, SOCK_STREAM) # TCP socket
+    clientSocket = socket(AF_INET, SOCK_STREAM)
+    dataSocket = None
+    # TCP socket
     # COMPLETE
 
     PORT = 21 #constant for the port according to the instructions
@@ -103,14 +105,16 @@ def main():
 
             if dataIn.startswith("230"): #230 = user was able to log in
                 status = 230
+            elif dataIn.startswith("530"): status = 530
 
 
     if status == 230:
         # It is your choice whether to use ACTIVE or PASV mode. In any event:
         # COMPLETE
         pasvStatus, dataSocket = modePASV(clientSocket)
+
         if pasvStatus == 227:
-            while status != 221: # while the server does not return QUIT status
+            while status != 221 or status != 0: # while the server does not return QUIT status
 
                 # This entire block of code will be converted into a funtion later.
                 userInput = input("")
@@ -123,7 +127,7 @@ def main():
                 elif len(userInput) == 2 and userInput == "ls":
                     command = "LIST" + "\r\n"
                 elif userInput[:3] == "cd " and len(userInput) > 3:
-                    command = "CWD " + userInput[2:] + "\r\n"
+                    command = "CWD " + userInput[3:] + "\r\n"
                 elif userInput[:4] == "get " and len(userInput) > 4:
                     command = "GET " + userInput[2:] + "\r\n"
                 elif userInput[:4] == "put " and len(userInput) > 4:
@@ -137,6 +141,9 @@ def main():
                     continue
 
                 data_in = sendCommand(clientSocket,command)
+                if not data_in :
+                    status = -1
+                    break
                 status = int(data_in[:3])
 
                 #print("DEBUG Before data_in and status parsing\ndata_in: " + data_in + "\n" + "status: " + str(status))
@@ -148,7 +155,12 @@ def main():
                 if status == 150 or status == 125: #File Status OK | Data connection already open
                     print(data_in[4:])
                     stream_data_in = receiveData(dataSocket)
+                    afterword = receiveData(clientSocket)
                     print(stream_data_in)
+                    print(afterword)
+                    status, dataSocket = modePASV(clientSocket)
+
+
                 elif status == 250: #Requested File Action Successful
                     print(data_in[4:])
                 elif status == 500: #Requested action not taken
@@ -157,17 +169,25 @@ def main():
                     print(data_in[4:])
                 elif status == 226: #Directory send OK.
                     print(data_in[4:])
+                elif status == 550: #Failed to change directory.
+                    print(data_in[4:])
+                elif status == 530:
+                    print(data_in[4:])
 
 
         elif pasvStatus == 0 :
             print("Failed to enable PASV mode!\n")
 
-    
-    print("Disconnecting...")
+    print("Disconnecting...") if status == 221 else\
+        print("Connection was lost! Exiting..") if status == -1 else\
+            print("Failed to turn on PASV mode! Disconnecting...") if status == 0 else\
+                print("Failed to login! Disconnecting...") if status == 530 else\
+                print("Unexpected error! Exiting..")
     
 
     clientSocket.close()
-    dataSocket.close()
+    if dataSocket:
+        dataSocket.close()
     
     sys.exit()#Terminate the program after sending the corresponding data
 
