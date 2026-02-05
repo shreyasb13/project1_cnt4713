@@ -129,7 +129,20 @@ def main():
                 elif userInput[:3] == "cd " and len(userInput) > 3:
                     command = "CWD " + userInput[3:] + "\r\n"
                 elif userInput[:4] == "get " and len(userInput) > 4:
-                    command = "GET " + userInput[2:] + "\r\n"
+                    file_name = userInput[4:]
+                    command = "RETR " + file_name + "\r\n"
+                    data_in = sendCommand(clientSocket, command)
+                    if data_in.startswith("150") or data_in.startswith("125"):
+                        if receiveFile(file_name, clientSocket, dataSocket) == 0:
+                            print("Download failed!")
+                            continue
+                        next = receiveData(clientSocket)
+                        print(next)
+                        status, dataSocket = modePASV(clientSocket)
+                        continue
+                    else:
+                        print(data_in)
+                        continue
                 elif userInput[:4] == "put " and len(userInput) > 4:
                     first_input_index = 4
                     second_input_index_relative_to_first_input = userInput[first_input_index:].find(" ") + 1
@@ -231,8 +244,32 @@ def sendFile(file_path,client_socket, data_socket):
         print("Error opening or reading file: " + str(error))
         return 0
 
+def receiveFile(file_name, client_socket, data_socket):
+    type = "I"  # Binary 
+    mode = "S"
 
+    sendCommand(client_socket, "TYPE " + type + "\r\n")
+    sendCommand(client_socket, "MODE " + mode + "\r\n")
 
+    chunk_size = 4096
+    bytes_received = 0
+
+    try:
+        with open(file_name, "wb") as file:
+            while True:
+                chunk = data_socket.recv(chunk_size)
+                if not chunk:
+                    break
+                file.write(chunk)
+                bytes_received += len(chunk)
+
+        data_socket.close()
+        print("Downloaded", bytes_received, "bytes.")
+        return 1
+
+    except IOError as error:
+        print("Error writing file:", str(error))
+        return 0
 
 def printHelp():
     cdHelp =\
