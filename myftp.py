@@ -131,17 +131,18 @@ def main():
                 elif userInput[:4] == "get " and len(userInput) > 4:
                     command = "GET " + userInput[2:] + "\r\n"
                 elif userInput[:4] == "put " and len(userInput) > 4:
-                    second_input_index = userInput[4:].find(" ") + 1
-                    if second_input_index == 0:
-                        if sendFile(userInput[4:], clientSocket, dataSocket) == 0:
+                    first_input_index = 4
+                    second_input_index_relative_to_first_input = userInput[first_input_index:].find(" ") + 1
+                    if second_input_index_relative_to_first_input == 0:
+                        if sendFile(userInput[first_input_index:], clientSocket, dataSocket) == 0:
                             print("Command Failed. Fix error and try again!")
                             continue
                         command = "STOR " + userInput[4:] + "\r\n"
                     else:
-                        if sendFile(userInput[4:second_input_index+3], clientSocket, dataSocket) == 0: #Be careful. I forgot splicing strings made an entirely new string, and the index was off because of it. That's why there's a + 3, for the initial 4 skipped, and one to move past the whitespace. Same for the +4 below. There should be a better way to do this.
+                        if sendFile(userInput[4:][:second_input_index_relative_to_first_input-1], clientSocket, dataSocket) == 0:
                             print("Command Failed. Fix error and try again!")
                             continue
-                        command = "STOR " + userInput[second_input_index + 4:]  + "\r\n"
+                        command = "STOR " + userInput[second_input_index_relative_to_first_input + first_input_index:]  + "\r\n"
                 elif userInput[:7] == "delete " and len(userInput) > 7:
                     command = "DELETE " + userInput[7:] + "\r\n"
                 elif userInput[:4] == "quit" and len(userInput) == 4:
