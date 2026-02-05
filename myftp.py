@@ -134,7 +134,7 @@ def main():
                     data_in = sendCommand(clientSocket, command)
                     if data_in.startswith("150") or data_in.startswith("125"):
                         if receiveFile(file_name, clientSocket, dataSocket) == 0:
-                            print("Command Failed. Fix error and try again!")
+                            print("Command Failed. Fix error and try again!\n")
                             continue
                         next = receiveData(clientSocket)
                         print(next)
@@ -153,7 +153,7 @@ def main():
                         command = "STOR " + userInput[4:] + "\r\n"
                     else:
                         if sendFile(userInput[4:][:second_input_index_relative_to_first_input-1], clientSocket, dataSocket) == 0:
-                            print("Command Failed. Fix error and try again!")
+                            print("Command Failed. Fix error and try again!\n")
                             continue
                         command = "STOR " + userInput[second_input_index_relative_to_first_input + first_input_index:]  + "\r\n"
                 elif userInput[:7] == "delete " and len(userInput) > 7:
@@ -161,7 +161,7 @@ def main():
                 elif userInput[:4] == "quit" and len(userInput) == 4:
                     command = "QUIT\r\n"
                 else :
-                    print("Invalid command! Enter 'help' to see available commands.")
+                    print("Invalid command! Enter 'help' to see available commands.\n")
                     continue
 
                 data_in = sendCommand(clientSocket,command)
