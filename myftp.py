@@ -261,10 +261,10 @@ def receiveFile(file_name, client_socket, data_socket):
                 bytes_received += len(chunk)
 
         data_socket.close()
-        print("Downloaded", bytes_received, "bytes.")
+        print("Downloaded ", bytes_received, " bytes.")
         return 1
     except IOError as error:
-        print("Error writing file:", str(error))
+        print("Error writing file: ", str(error))
         return 0
 
 def printHelp():
