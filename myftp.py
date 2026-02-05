@@ -144,7 +144,7 @@ def main():
                             continue
                         command = "STOR " + userInput[second_input_index_relative_to_first_input + first_input_index:]  + "\r\n"
                 elif userInput[:7] == "delete " and len(userInput) > 7:
-                    command = "DELETE " + userInput[7:] + "\r\n"
+                    command = "DELE " + userInput[7:] + "\r\n"
                 elif userInput[:4] == "quit" and len(userInput) == 4:
                     command = "QUIT\r\n"
                 else :
@@ -187,6 +187,12 @@ def main():
                     print(data_in[4:])
                 elif status == 530:
                     print(data_in[4:])
+                elif status == 450: #File Unavailable, likely due to it being in use.
+                    print(data_in[4:])
+                elif status == 452:
+                    print(data_in[:])
+                elif status == 550: #File Unavailable, likely due to lack of permissions or other client-required action that needs to be taken
+                    print(data_in[:])
 
 
         elif pasvStatus == 0 :
