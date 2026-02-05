@@ -247,13 +247,10 @@ def sendFile(file_path,client_socket, data_socket):
 def receiveFile(file_name, client_socket, data_socket):
     type = "I"  # Binary 
     mode = "S"
-
     sendCommand(client_socket, "TYPE " + type + "\r\n")
     sendCommand(client_socket, "MODE " + mode + "\r\n")
-
     chunk_size = 4096
     bytes_received = 0
-
     try:
         with open(file_name, "wb") as file:
             while True:
@@ -266,7 +263,6 @@ def receiveFile(file_name, client_socket, data_socket):
         data_socket.close()
         print("Downloaded", bytes_received, "bytes.")
         return 1
-
     except IOError as error:
         print("Error writing file:", str(error))
         return 0
