@@ -134,7 +134,7 @@ def main():
                     data_in = sendCommand(clientSocket, command)
                     if data_in.startswith("150") or data_in.startswith("125"):
                         if receiveFile(file_name, clientSocket, dataSocket) == 0:
-                            print("Download failed!")
+                            print("Command Failed. Fix error and try again!")
                             continue
                         next = receiveData(clientSocket)
                         print(next)
