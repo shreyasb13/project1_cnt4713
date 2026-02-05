@@ -114,7 +114,7 @@ def main():
         pasvStatus, dataSocket = modePASV(clientSocket)
 
         if pasvStatus == 227:
-            while status != 221 or status != 0: # while the server does not return QUIT status
+            while status != 221 and status != 0: # while the server does not return QUIT status
 
                 # This entire block of code will be converted into a funtion later.
                 userInput = input("")
