@@ -231,13 +231,16 @@ def sendFile(file_path,client_socket, data_socket):
     sendCommand(client_socket, "TYPE " + type + "\r\n")
     sendCommand(client_socket, "MODE " + mode + "\r\n")
     chunk_size = 4096
+    bytes_uploaded = 0
     try:
-        with open(file_path,"rb") as file:
+        with (open(file_path,"rb") as file):
             while True:
                 chunk = file.read(chunk_size)
                 if not chunk:
                     break
+                bytes_uploaded += len(chunk)
                 data_socket.sendall(chunk)
+        print("Uploaded", bytes_uploaded, "bytes.")
         data_socket.close()
         return 1
     except IOError as error:
