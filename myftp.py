@@ -131,9 +131,19 @@ def main():
                 elif userInput[:4] == "get " and len(userInput) > 4:
                     command = "GET " + userInput[2:] + "\r\n"
                 elif userInput[:4] == "put " and len(userInput) > 4:
-                    command = "PUT " + userInput[2:] + "\r\n"
+                    second_input_index = userInput[4:].find(" ") + 1
+                    if second_input_index == 0:
+                        if sendFile(userInput[4:], clientSocket, dataSocket) == 0:
+                            print("Command Failed. Fix error and try again!")
+                            continue
+                        command = "STOR " + userInput[4:] + "\r\n"
+                    else:
+                        if sendFile(userInput[4:second_input_index+3], clientSocket, dataSocket) == 0: #Be careful. I forgot splicing strings made an entirely new string, and the index was off because of it. That's why there's a + 3, for the initial 4 skipped, and one to move past the whitespace. Same for the +4 below. There should be a better way to do this.
+                            print("Command Failed. Fix error and try again!")
+                            continue
+                        command = "STOR " + userInput[second_input_index + 4:]  + "\r\n"
                 elif userInput[:7] == "delete " and len(userInput) > 7:
-                    command = "DELETE " + userInput[2:] + "\r\n"
+                    command = "DELETE " + userInput[7:] + "\r\n"
                 elif userInput[:4] == "quit" and len(userInput) == 4:
                     command = "QUIT\r\n"
                 else :
@@ -153,14 +163,17 @@ def main():
                 #250: Requested File Action Successful  221: Received QUIT command 226: Directory send OK.
 
                 if status == 150 or status == 125: #File Status OK | Data connection already open
-                    print(data_in[4:])
-                    stream_data_in = receiveData(dataSocket)
-                    afterword = receiveData(clientSocket)
-                    print(stream_data_in)
-                    print(afterword)
-                    status, dataSocket = modePASV(clientSocket)
-
-
+                    if(command[:4] == "LIST"):
+                        print(data_in[4:])
+                        stream_data_in = receiveData(dataSocket)
+                        afterword = receiveData(clientSocket)
+                        print(stream_data_in)
+                        print(afterword)
+                        status, dataSocket = modePASV(clientSocket)
+                    else:
+                        afterword = receiveData(clientSocket)
+                        print(afterword)
+                        status, dataSocket = modePASV(clientSocket)
                 elif status == 250: #Requested File Action Successful
                     print(data_in[4:])
                 elif status == 500: #Requested action not taken
@@ -191,6 +204,28 @@ def main():
     
     sys.exit()#Terminate the program after sending the corresponding data
 
+def sendFile(file_path,client_socket, data_socket):
+    #type = "ASCII" if file_path[-3:0] == "txt" else
+    type = "I" #Binary
+    mode = "S"
+    sendCommand(client_socket, "TYPE " + type + "\r\n")
+    sendCommand(client_socket, "MODE " + mode + "\r\n")
+    chunk_size = 4096
+    try:
+        with open(file_path,"rb") as file:
+            while True:
+                chunk = file.read(chunk_size)
+                if not chunk:
+                    break
+                data_socket.sendall(chunk)
+        data_socket.close()
+        return 1
+    except IOError as error:
+        print("Error opening or reading file: " + str(error))
+        return 0
+
+
+
 
 def printHelp():
     cdHelp =\
@@ -211,7 +246,7 @@ def printHelp():
     putHelp = \
         "put\n" \
         "Uploads the specified file from the device to the server\n" \
-        "Usage: put <directory>\n"
+        "Usage: put <directory> <optional-new-name>\n"
 
     deleteHelp = \
         "delete\n" \
